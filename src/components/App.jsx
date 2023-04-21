@@ -9,6 +9,7 @@ export const App = () => {
       <SearchBar />
       <ImageGallery />
       <BtnLoadMore />
+      <BtnLoadMore />
     </div>
   );
 };
