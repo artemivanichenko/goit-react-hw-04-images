@@ -42,7 +42,7 @@ export class App extends Component {
         totalPage: response.totalPage,
         isLoading: false,
       }));
-      // catch (error) {console.log(error.message);}
+
       //     .finally(() => this.setState({ isLoading: false }));
     }
   }
