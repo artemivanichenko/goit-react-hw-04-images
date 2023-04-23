@@ -1,32 +1,44 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import css from '../Modal/Modal.module.css';
+import PropTypes from 'prop-types';
 
-const modalRoot = document.querySelector('#modal');
+const modalDiv = document.querySelector('#modal');
 
 export class Modal extends Component {
+  handleKeydown = e => {
+    if (e.key === 'Escape') {
+      this.props.toggleModal();
+    }
+  };
+
+  onBackdropClick = e => {
+    if (e.target === e.currentTarget) {
+      this.props.toggleModal();
+    }
+  };
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeydown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeydown);
+  }
+
   render() {
-    return (
-      (
-        <div className="overlay">
-          <div className="modal">
-            <img src="" alt="test text" />
-          </div>
+    const { url, tag } = this.props;
+    return ReactDOM.createPortal(
+      <div onClick={this.onBackdropClick} className={css.overlay}>
+        <div className={css.modal}>
+          <img className={css.img} src={url} alt={tag} />
         </div>
-      ),
-      modalRoot
+      </div>,
+      modalDiv
     );
   }
 }
 
-// import * as basicLightbox from 'basiclightbox';
-
-// const instance = basicLightbox.create(`
-//     <div class="modal">
-//         <p>
-//             Your first lightbox with just a few lines of code.
-//             Yes, it's really that simple.
-//         </p>
-//     </div>
-// `);
-
-// instance.show();
+Modal.propTypes = {
+  url: PropTypes.string.isRequired,
+  tag: PropTypes.string,
+};
