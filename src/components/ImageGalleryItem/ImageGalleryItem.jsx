@@ -7,16 +7,17 @@ export const ImageGalleryItem = ({
   id,
   largeImageURL,
   onOpenModal,
-  onClick,
 }) => {
   return (
-    <li onClick={onOpenModal} id={id} className={css.ImageGalleryItem}>
+    <li
+      onClick={() => onOpenModal(largeImageURL, tags)}
+      id={id}
+      className={css.ImageGalleryItem}
+    >
       <img
         className={css.ImageGalleryItemImage}
-        data-modal={largeImageURL}
+        largeimageurl={largeImageURL}
         src={webformatURL}
-        data-tag={tags}
-        onClick={onClick}
         alt={tags}
       />
     </li>
@@ -29,5 +30,4 @@ ImageGalleryItem.propTypes = {
   id: PropTypes.number.isRequired,
   largeImageURL: PropTypes.string.isRequired,
   onOpenModal: PropTypes.func.isRequired,
-  onClick: PropTypes.func.isRequired,
 };

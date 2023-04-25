@@ -2,7 +2,7 @@ import { Component } from 'react';
 import { BtnLoadMore } from './Button/Button';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { SearchBar } from './SearchBar/SearchBar';
-import { getImages } from './Api/Api';
+import { getImages } from '../Api/Api';
 import css from '../components/App.module.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,8 +17,6 @@ export class App extends Component {
     total: '',
     totalPage: '',
     isLoading: false,
-    isLoaded: false,
-    // error: '',
     showModal: false,
     modalImageURL: '',
     modalTag: '',
@@ -29,25 +27,17 @@ export class App extends Component {
       toast("Search request shouldn't be empty");
       return;
     }
-    this.setState({ query: e.query, page: 1, images: [], isLoaded: true });
+    this.setState({ query: e.query, page: 1, images: [] });
   };
-  toggleModal = () => {
+  toggleModal = (largeImageURL, alt) => {
     this.setState(({ showModal }) => ({
       showModal: !showModal,
     }));
-  };
 
-  getDataModal = e => {
-    if (e.target.nodeName === 'IMG');
-    {
-      const currentImgUrl = e.target.getAttribute('data-modal');
-      const currentImgTag = e.target.getAttribute('data-tags');
-      this.setState({
-        modalImageURL: currentImgUrl,
-        modalTag: currentImgTag,
-      });
-      this.toggleModal();
-    }
+    this.setState({
+      modalImageURL: largeImageURL,
+      modalTag: alt,
+    });
   };
   handleLoadMore = () => {
     this.setState(prevState => {
@@ -67,23 +57,31 @@ export class App extends Component {
         total: response.totalImg,
         totalPage: response.totalPage,
         isLoading: false,
-        isLoaded: true,
       }));
     }
   }
   render() {
-    const { isLoaded, images, isLoading, modalImageURL, modalTag, showModal } =
-      this.state;
+    const {
+      total,
+      images,
+      totalPage,
+      page,
+      isLoading,
+      modalImageURL,
+      modalTag,
+      showModal,
+    } = this.state;
     return (
       <div className={css.App}>
         <SearchBar onSubmit={this.handleFormSubmit} />
         <ToastContainer autoClose={2000} />
+        {total > 0 ? (
+          <ImageGallery onOpenModal={this.toggleModal} images={images} />
+        ) : (
+          <p className={css.text}>Make the right request and upload photos</p>
+        )}
+
         {isLoading && <Loader />}
-        <ImageGallery
-          onOpenModal={this.getDataModal}
-          isLoaded={isLoaded}
-          images={images}
-        />
         {showModal && (
           <Modal
             toggleModal={this.toggleModal}
@@ -91,7 +89,9 @@ export class App extends Component {
             tag={modalTag}
           />
         )}
-        {isLoaded && <BtnLoadMore onClick={this.handleLoadMore} />}
+        {total > 0 && page < totalPage && (
+          <BtnLoadMore onClick={this.handleLoadMore} />
+        )}
       </div>
     );
   }

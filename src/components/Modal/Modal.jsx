@@ -7,16 +7,11 @@ const modalDiv = document.querySelector('#modal');
 
 export class Modal extends Component {
   handleKeydown = e => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' || e.target === e.currentTarget) {
       this.props.toggleModal();
     }
   };
 
-  onBackdropClick = e => {
-    if (e.target === e.currentTarget) {
-      this.props.toggleModal();
-    }
-  };
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeydown);
   }
@@ -28,7 +23,7 @@ export class Modal extends Component {
   render() {
     const { url, tag } = this.props;
     return ReactDOM.createPortal(
-      <div onClick={this.onBackdropClick} className={css.overlay}>
+      <div onClick={this.handleKeydown} className={css.overlay}>
         <div className={css.modal}>
           <img className={css.img} src={url} alt={tag} />
         </div>
@@ -41,4 +36,5 @@ export class Modal extends Component {
 Modal.propTypes = {
   url: PropTypes.string.isRequired,
   tag: PropTypes.string,
+  toggleModal: PropTypes.func,
 };
