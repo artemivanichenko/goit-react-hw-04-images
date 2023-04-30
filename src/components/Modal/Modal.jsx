@@ -16,7 +16,7 @@ export const Modal = ({ toggleModal, tag, url }) => {
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, []);
+  });
 
   return ReactDOM.createPortal(
     <div onClick={handleKeydown} className={css.overlay}>
