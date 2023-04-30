@@ -1,37 +1,32 @@
-import React, { Component } from 'react';
+import { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import css from '../Modal/Modal.module.css';
 import PropTypes from 'prop-types';
 
 const modalDiv = document.querySelector('#modal');
 
-export class Modal extends Component {
-  handleKeydown = e => {
+export const Modal = ({ toggleModal, tag, url }) => {
+  const handleKeydown = e => {
     if (e.key === 'Escape' || e.target === e.currentTarget) {
-      this.props.toggleModal();
+      toggleModal();
     }
   };
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, []);
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeydown);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown);
-  }
-
-  render() {
-    const { url, tag } = this.props;
-    return ReactDOM.createPortal(
-      <div onClick={this.handleKeydown} className={css.overlay}>
-        <div className={css.modal}>
-          <img className={css.img} src={url} alt={tag} />
-        </div>
-      </div>,
-      modalDiv
-    );
-  }
-}
+  return ReactDOM.createPortal(
+    <div onClick={handleKeydown} className={css.overlay}>
+      <div className={css.modal}>
+        <img className={css.img} src={url} alt={tag} />
+      </div>
+    </div>,
+    modalDiv
+  );
+};
 
 Modal.propTypes = {
   url: PropTypes.string.isRequired,

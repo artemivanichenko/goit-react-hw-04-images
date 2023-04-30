@@ -1,98 +1,88 @@
-import { Component } from 'react';
-import { BtnLoadMore } from './Button/Button';
-import { ImageGallery } from './ImageGallery/ImageGallery';
-import { SearchBar } from './SearchBar/SearchBar';
-import { getImages } from '../Api/Api';
+import { useState, useEffect, useCallback } from 'react';
 import css from '../components/App.module.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Modal } from './Modal/Modal';
-import { Loader } from './Loader/Loader';
+import {
+  BtnLoadMore,
+  ImageGallery,
+  SearchBar,
+  Loader,
+  Modal,
+  getImagesApi,
+} from './index';
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    total: '',
-    totalPage: '',
-    isLoading: false,
-    showModal: false,
-    modalImageURL: '',
-    modalTag: '',
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [total, setTotal] = useState('');
+  const [totalPage, setTotalPage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImageURL, setModalImageURL] = useState('');
+  const [modalTag, setModalTag] = useState('');
 
-  handleFormSubmit = e => {
-    if (e.query === '') {
+  const handleFormSubmit = query => {
+    if (query === '') {
       toast("Search request shouldn't be empty");
       return;
     }
-    this.setState({ query: e.query, page: 1, images: [] });
-  };
-  toggleModal = (largeImageURL, alt) => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
 
-    this.setState({
-      modalImageURL: largeImageURL,
-      modalTag: alt,
-    });
+    setQuery(query);
+    setPage(1);
+    setImages([]);
   };
-  handleLoadMore = () => {
-    this.setState(prevState => {
-      return { page: prevState.page + 1 };
-    });
+  const toggleModal = (largeImageURL, alt) => {
+    setShowModal(!showModal);
+    setModalImageURL(largeImageURL);
+    setModalTag(alt);
   };
-  async componentDidUpdate(prevProps, prevState) {
-    if (
-      prevState.query !== this.state.query ||
-      prevState.page !== this.state.page
-    ) {
-      this.setState({ isLoading: true, error: '' });
-      const { query, page } = this.state;
-      const response = await getImages(query, page);
-      this.setState(prevState => ({
-        images: [...prevState.images, ...response.images],
-        total: response.totalImg,
-        totalPage: response.totalPage,
-        isLoading: false,
-      }));
+  const handleLoadMore = () => {
+    setPage(page => (page += 1));
+  };
+
+  const getImages = useCallback(async () => {
+    setIsLoading(true);
+    // setIsLoading(false);
+    const response = await getImagesApi(query, page);
+    if (response.images.length === 0) {
+      // setIsLoading(false);
+      toast(`We are don't have photo with this word`);
+      // return;
     }
-  }
-  render() {
-    const {
-      total,
-      images,
-      totalPage,
-      page,
-      isLoading,
-      modalImageURL,
-      modalTag,
-      showModal,
-    } = this.state;
-    return (
-      <div className={css.App}>
-        <SearchBar onSubmit={this.handleFormSubmit} />
-        <ToastContainer autoClose={2000} />
-        {total > 0 ? (
-          <ImageGallery onOpenModal={this.toggleModal} images={images} />
-        ) : (
-          <p className={css.text}>Make the right request and upload photos</p>
-        )}
+    if (response.images.length > 0 && page === 1) {
+      setImages(prevState => [...prevState, ...response.images]);
+      setTotal(response.totalImg);
+      setTotalPage(response.totalPage);
+      setIsLoading(false);
+      toast(`We are found ${response.totalImg} images`);
+    }
+  }, [page, query]);
 
-        {isLoading && <Loader />}
-        {showModal && (
-          <Modal
-            toggleModal={this.toggleModal}
-            url={modalImageURL}
-            tag={modalTag}
-          />
-        )}
-        {total > 0 && page < totalPage && (
-          <BtnLoadMore onClick={this.handleLoadMore} />
-        )}
-      </div>
-    );
-  }
-}
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    getImages();
+  }, [query, page]);
+
+  return (
+    <div className={css.App}>
+      <SearchBar onSubmit={handleFormSubmit} />
+      <ToastContainer autoClose={2000} />
+      {total > 0 ? (
+        <ImageGallery onOpenModal={toggleModal} images={images} />
+      ) : (
+        <p className={css.text}>Make the right request and upload photos</p>
+      )}
+
+      {isLoading && <Loader />}
+      {showModal && (
+        <Modal toggleModal={toggleModal} url={modalImageURL} tag={modalTag} />
+      )}
+      {!isLoading && page < totalPage && (
+        <BtnLoadMore onClick={handleLoadMore} />
+      )}
+    </div>
+  );
+};
