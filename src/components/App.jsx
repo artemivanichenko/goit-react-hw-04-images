@@ -53,14 +53,14 @@ export const App = () => {
     setTotal(response.totalImg);
     setTotalPage(response.totalPage);
     setIsLoading(false);
-  }, [page, query]);
+  }, [page, query, totalPage]);
 
   useEffect(() => {
     if (!query) {
       return;
     }
     getImages();
-  }, [query, page]);
+  }, [query, page, getImages]);
 
   return (
     <div className={css.App}>
