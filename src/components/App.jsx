@@ -48,12 +48,12 @@ export const App = () => {
     if (response.images.length === 0) toast(`Try again`);
     if (page === 1 && response.images.length !== 0)
       toast(`We are found ${response.totalImg} images`);
-    if (totalPage === page) toast(`These are the last images`);
+    // if (totalPage === page) toast(`These are the last images`);
     setImages(prevState => [...prevState, ...response.images]);
     setTotal(response.totalImg);
     setTotalPage(response.totalPage);
     setIsLoading(false);
-  }, [page, query, totalPage]);
+  }, [page, query]);
 
   useEffect(() => {
     if (!query) {
@@ -61,6 +61,10 @@ export const App = () => {
     }
     getImages();
   }, [query, page, getImages]);
+
+  useEffect(() => {
+    if (totalPage === page) toast(`These are the last images`);
+  }, [page, totalPage]);
 
   return (
     <div className={css.App}>
