@@ -24,7 +24,7 @@ export const App = () => {
 
   const handleFormSubmit = query => {
     if (query === '') {
-      toast("Search request shouldn't be empty");
+      toast('Enter a search request');
       return;
     }
 
@@ -43,20 +43,16 @@ export const App = () => {
 
   const getImages = useCallback(async () => {
     setIsLoading(true);
-    // setIsLoading(false);
+
     const response = await getImagesApi(query, page);
-    if (response.images.length === 0) {
-      // setIsLoading(false);
-      toast(`We are don't have photo with this word`);
-      // return;
-    }
-    if (response.images.length > 0 && page === 1) {
-      setImages(prevState => [...prevState, ...response.images]);
-      setTotal(response.totalImg);
-      setTotalPage(response.totalPage);
-      setIsLoading(false);
+    if (response.images.length === 0) toast(`Try again`);
+    if (page === 1 && response.images.length !== 0)
       toast(`We are found ${response.totalImg} images`);
-    }
+    if (totalPage === page) toast(`These are the last images`);
+    setImages(prevState => [...prevState, ...response.images]);
+    setTotal(response.totalImg);
+    setTotalPage(response.totalPage);
+    setIsLoading(false);
   }, [page, query]);
 
   useEffect(() => {
