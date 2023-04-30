@@ -27,23 +27,23 @@ export const App = () => {
       toast('Enter a search request');
       return;
     }
-
     setQuery(query);
     setPage(1);
     setImages([]);
   };
+
   const toggleModal = (largeImageURL, alt) => {
     setShowModal(!showModal);
     setModalImageURL(largeImageURL);
     setModalTag(alt);
   };
+
   const handleLoadMore = () => {
     setPage(page => (page += 1));
   };
 
   const getImages = useCallback(async () => {
     setIsLoading(true);
-
     const response = await getImagesApi(query, page);
     if (response.images.length === 0) toast(`Try again`);
     if (page === 1 && response.images.length !== 0)
